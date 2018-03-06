@@ -28,8 +28,18 @@ io.on('connection', function(socket){
     console.log(sid, 'user disconnected');
   });
 
+  socket.on('moveLeftRight', function(msg){
+    console.log(msg);
+  });
+
+  socket.on('colors', function(msg){
+    console.log(msg);
+    socket.broadcast.emit('colors', msg); 
+  }); 
+
  socket.on('blobs', function(msg){
     console.log('message: x', msg.x, 'y', msg.y);
+    msg.id = socket.id;
     io.emit('blobs', msg);
    });
 });
