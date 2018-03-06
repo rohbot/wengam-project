@@ -16,6 +16,10 @@ app.get('/mobile', function(req, res) {
   res.sendFile(__dirname + '/public/mobile.html');
 })
 
+app.get('/end', function(req, res) {
+  res.sendFile(__dirname + '/public/end.html');
+})
+
 
 app.use(express.static(__dirname + '/public'));
 
