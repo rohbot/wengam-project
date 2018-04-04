@@ -29,10 +29,14 @@ var sounds = {};
 
 var hotspots = [];
 
+var maskImage;
+
 function preload(){
 	images['reveal1'] = loadImage('assets/reveal.jpeg');
 	images['reveal2'] = loadImage('assets/reveal2.jpg');
 	images['reveal3'] = loadImage('assets/reveal.gif');
+
+	maskImage = loadImage('assets/mask.png');
 
 	sounds['snd1'] = loadSound('assets/test.mp3');
 	sounds['snd2'] = loadSound('assets/test2.mp3');
@@ -55,7 +59,15 @@ function setup(){
   		blobs[msg.id].update(newX, newY);
   		hotspots.forEach( function(hotspot){
 
-  			hotspot.collide(blobs[msg.id].pos);
+  			if(hotspot.collide(blobs[msg.id].pos)){
+  				blobs[msg.id].setCollide(true);
+  				console.log("collision:", msg.id, hotspot.pos.x, hotspot.pos.y, blobs[msg.id].collided);
+  				hotspot.collidedBlob = msg.id;
+  			}else{
+  				//blobs[msg.id].collided = false;
+  			}
+  		
+
   		});
   	}else{
 
@@ -79,7 +91,10 @@ function setup(){
   hotspots.push(new HotSpot(random(width), random(height), 130, 130, sounds['snd2'], images['reveal2']));	
   hotspots.push(new HotSpot(random(width), random(height), 130, 130, sounds['snd3'], images['reveal3']));
 
-
+ images['reveal1'].mask(maskImage);
+ images['reveal2'].mask(maskImage);
+ images['reveal3'].mask(maskImage);
+ 
 }
 
 function blobsTimeout(){
@@ -108,8 +123,9 @@ setInterval(blobsTimeout, 1000);
 
 
 function draw(){
-	
-	background(51);
+	//image(images['reveal1'], 0, 0); 
+
+	background(1);
 	for(var key in blobs){
 		blobs[key].show();
 	}
@@ -123,8 +139,9 @@ function Blob(x,y, id, col){
 	this.id = id;
 	this.pos  = createVector(x,y);
 	this.lastMoved = millis();
-	this.r = 50;
+	this.r = 100;
 	this.color = col;
+	this.collided = false;
 
 	this.update = function(x,y){
 		this.pos.x = x;
@@ -133,10 +150,18 @@ function Blob(x,y, id, col){
 		//console.log(this.id, this.x, this.y, this.lastMoved);
 	}
 
-	this.show = function(){
-	 	fill(this.color);
-	 	ellipse(this.pos.x, this.pos.y, this.r, this.r);	
+	this.setCollide = function(col){
+		this.collided = col;
+	}
 
+	this.show = function(){
+		if(!this.collided){
+			//noFill();
+	 		//stroke(this.color);
+	 		//ellipse(this.pos.x, this.pos.y, this.r);	
+	 		image(maskImage, this.pos.x - 70, this.pos.y -70, this.r + 50, this.r +50);	
+		}
+	 	
 	}
 
 }
@@ -148,8 +173,9 @@ function HotSpot(x,y, w, h, snd, img){
 	this.sound = snd;
 	this.img = img;
 	this.revealed = false;
-	this.r = 100;
+	this.r = 50;
 	this.revealed_count = 0;
+	this.collidedBlob = '';
 	console.log("hotspot" , x, y);
 
 	this.collide = function(blob_pos){
@@ -172,6 +198,8 @@ function HotSpot(x,y, w, h, snd, img){
 					this.revealed_count = 0;
 					this.pos = createVector(random(width), random(height));
 				}
+				blobs[this.collidedBlob].collided = false;
+				this.collidedBlob = '';
 			}
 			
 			return false;
@@ -183,7 +211,7 @@ function HotSpot(x,y, w, h, snd, img){
 	this.show = function () {
 		if(this.revealed){
 			//console.log('here', this.pos.x, this.pos.y);
-		
+			//this.img.mask(maskImage);
 			image(this.img, this.pos.x - (this.w)/ 2 , this.pos.y - (this.h)/ 2, this.w, this.h);	
 		}
 		
