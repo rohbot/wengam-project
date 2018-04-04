@@ -158,7 +158,7 @@ function Blob(x,y, id, col){
 		if(!this.collided){
 			//noFill();
 	 		//stroke(this.color);
-	 		//ellipse(this.pos.x, this.pos.y, this.r);	
+	 		//ellipse(this.pos.x, this.pos.y, this.r+5, this.r+5);	
 	 		image(maskImage, this.pos.x - 70, this.pos.y -70, this.r + 50, this.r +50);	
 		}
 	 	
