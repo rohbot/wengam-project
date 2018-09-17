@@ -43,14 +43,27 @@
   <p id="msg"></p>
 
   <script>
+
+  function convertToXY(value, istart, istop, ostart, ostop) {
+    let result = ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
+
+    if (result < ostart)
+      result = ostart;
+    if (result > ostop)
+      result = ostop;
+
+    return Math.floor(result);
+}
+
+
     $(document).ready(function() {
       var socket = io();
       var newLR,
 		    newFB,
         costheta,
         sintheta;
-      var prevFB = 0;
-      var prevLR = 0;  
+      var prevX = 0;
+      var prevY = 0;  
      
       socket.on('colors', function(msg){
         console.log(msg, socket.id);
@@ -88,21 +101,27 @@
             // socket.emit('motion', tiltLR, tiltFB, dir);
             // call our orientation event handler deviceOrientationHandler(tiltLR, tiltFB, dir);
             //socket.emit('moveLeftRight', newLR, tiltFB);
+            let _x = convertToXY(newLR, -80, 80, 0, 1280);
+            let _y = convertToXY(newFB, -40, 30, 0, 720);
+
             var updated =false;
-            if(Math.abs(prevLR - newLR) > 0.5){
-              prevLR = newLR;
+            if(Math.abs(prevX - _x) > 5){
+              prevX = _x;
+              prevFB = _y;
               updated = true;
-              $("#lr").html(newLR);
+              $("#lr").html(_x);
             
             }
-            if(Math.abs(prevFB - newFB) > 0.5){
-              prevFB = newFB;
+            if(Math.abs(prevY - _y) > 5){
+              prevX = _x;
+              prevFB = _y;
               updated = true;
-              $("#fb").html(newFB);
+              $("#fb").html(_y);
             }
 
             if(updated){
-              socket.emit('blobs', { 'x': newLR, 'y': newFB});
+ 
+              socket.emit('blobs', { 'x': _x, 'y': _y});
               
             }
             
